@@ -8,5 +8,5 @@ echo "cleaning data..."
 $plinkPath --allow-no-sex --make-bed --geno .02 --mind .02 --vcf "$dir" --out "$dir"
 echo "generating Hardy-Weinberg figures..."
 $plinkPath --allow-no-sex --hardy --vcf "$dir" --out "$dir"
-set hwe=\' + "$dir" + ".hwe" + \'
-Rscript -e "hwe <- read.table("$hwe"); plot(hwe$V4,hwe$V5)
+hwe=\'"$dir"".hwe"\'
+Rscript -e "hwe <- read.table("$hwe"); plot(hwe$V4,hwe$V5)"
