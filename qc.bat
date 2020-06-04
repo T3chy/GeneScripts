@@ -16,6 +16,6 @@ $plinkPath --allow-no-sex --make-bed .05 --geno .05 --file "$dir""_mind" --out "
 echo "generating Hardy-Weinberg figures..."
 $plinkPath --allow-no-sex --hardy --file "$dir""_geno" --out "$dir""_hwe"
 #generate HWE figures TODO take out outlier SNPs found using this analysis (p value <9*10^-5)
-## MORE TODO do freq w --freq and graph do pihat w --genome and graph ##
+## MORE TODO do freq w --freq and graph do p hat w --genome and graph ##
 
 
