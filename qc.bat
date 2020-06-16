@@ -46,7 +46,10 @@ $plinkPath --allow-no-sex --bfile "data_founderfiltered" --make-bed --genome --m
 $plinkPath --allow-no-sex --bfile "pihat_min0.2_in_founders" --freq --out "freq"
 ### GRAPHING TIME BABY ###
 echo "Graphing Minor Allele Frequency..."
-Rscript -e "require("tidyverse"); setwd("$wd"); frq <- read.table("freq.frq", skip=1); hist(frq$V5, main="Minor Allele Frequency Distribution", xlab="Mean Minor Allele Frequency", ylab="Number of SNPs")"
+
+Rscript -e "require("tidyverse"); setwd(getwd()); frq <- read.table("\"freq.frq\"", skip=1); pdf("\"freq.pdf\""); hist(frq\$V5);dev.off()"
+### MAKE AXIS LABELS WORK AHH main="Minor Allele Frequency Distribution", xlab="Mean Minor Allele Frequency", ylab="Number of SNPs")" ###
 echo "Graphing hwe..."
-Rscript -e "require("tidyverse"); setwd("$wd"); hwe <- read.table("plink.hwe",skip=1); ggplot(hwe, aes(V9)) +geom_density();"
-#TODO maybe pihat or smth?
+Rscript -e "require("tidyverse"); setwd(getwd()); hwe <- read.table("\"plink.hwe\"",skip=1); pdf("\"hwe.pdf\""); ggplot(hwe, aes(V9)) +geom_density();dev.off()"
+###TODO grep output and simplify to just what got removed and stuff###
+###ALSO TODO maybe plot pihat or smth?, install R packages if they aren't, more usability stuff, maybe concatenate graphing funcs ###
