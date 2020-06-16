@@ -47,6 +47,6 @@ $plinkPath --allow-no-sex --bfile "pihat_min0.2_in_founders" --freq --out "freq"
 ### GRAPHING TIME BABY ###
 echo "Graphing Minor Allele Frequency..."
 Rscript -e "require("tidyverse"); setwd("$wd"); frq <- read.table("freq.frq", skip=1); hist(frq$V5, main="Minor Allele Frequency Distribution", xlab="Mean Minor Allele Frequency", ylab="Number of SNPs")"
-echo "Graphing hwe"
+echo "Graphing hwe..."
 Rscript -e "require("tidyverse"); setwd("$wd"); hwe <- read.table("plink.hwe",skip=1); ggplot(hwe, aes(V9)) +geom_density();"
-
+#TODO maybe pihat or smth?
