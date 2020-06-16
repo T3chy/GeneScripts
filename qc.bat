@@ -1,11 +1,12 @@
 #!/bin/bash
 ### EXAMPLE USAGE- if your plnk exexutable is in the downloads folder and you are in the directory with this script in it, you would run this script like so:  ###
-### ./qc.bat /path/to/data/data.vcf ~/Downloads/ ###
+### ./qc.bat /path/to/data/data.vcf ~/Downloads/ /folder/I/want/results/in###
 # QC time
 #inputs to this script are the path to a vcf of your data and a path to the directory you plink app is in
 plinkPath=$2./plink
 dir=$1
-cd /mnt/HDD/Data/ #this is specific to my computer- TODO generalize / abstract this
+wd=$3
+cd "$wd" 
 # confirmation of directory inputs and tells user inital qc is starting
 echo "$dir"
 echo "$plinkPath"
@@ -14,7 +15,7 @@ echo RECODE
 $plinkPath --allow-no-sex --make-bed --recode --vcf "$dir"
 echo GENO
 # call geno first to take out SNPs with bad overall call rate
-$plinkPath --allow-no-sex --make-bed --geno .04 --file "plink" --out "data_genoed"
+$plinkPath --allow-no-sex --make-bed --geno .04 --bfile "plink" --out "data_genoed"
 echo MIND
 # call mind after geno to take out individuals with bad overall call rate considering SNPs with bad call rates
 $plinkPath --allow-no-sex --make-bed  --mind .05 --bfile "data_genoed" --out "data_minded"
