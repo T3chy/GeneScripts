@@ -23,7 +23,7 @@ echo HARDY
 #generate hwe equalibrium data
 $plinkPath --allow-no-sex --hardy --bfile "data_genoed" | echo "writing unfiltered hwe data..."
 # filter hwe file to remove all individuals w/ p values < 1*10^-5
-awk '{ if ($9 < 0.00001) print $0 }' plink.hwe > plinkfilteredhwe.hwe 
+awk '{ if ($9 < 0.00001) print $0 }' plink.hwe > plinkfilteredhwe.hwe # switch the inequality sign whoops
 echo HARDY1
 # this filters the actual binary file to individuals w p values > 1*10^-6 
 $plinkPath --allow-no-sex --bfile "data_genoed" --hwe 1e-6 --make-bed --out "hwe_filter_step1" | grep -e "removed"
