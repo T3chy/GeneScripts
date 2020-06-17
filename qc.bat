@@ -26,17 +26,16 @@ $plinkPath --allow-no-sex --hardy --bfile "data_genoed" | echo "writing unfilter
 awk '{ if ($9 < 0.00001) print $0 }' plink.hwe > plinkfilteredhwe.hwe # switch the inequality sign whoops
 echo HARDY1
 # this filters the actual binary file to individuals w p values > 1*10^-6 
-$plinkPath --allow-no-sex --bfile "data_genoed" --hwe 1e-6 --make-bed --out "hwe_filter_step1" | grep -e "removed"
-echo HARDY2
-# for case-control data, this filters the subjects too to a looser standard
-$plinkPath --allow-no-sex --bfile "hwe_filter_step1" --hwe 1e-10 "include-nonctrl" --make-bed --out "data_hwed" | grep -e "removed"
+$plinkPath --allow-no-sex --bfile "data_genoed" --hwe 1e-6 --make-bed "include-nonctrl" --out "hwe_filter_step1" | grep -e "removed"
+# graph pihat values for all pairs- histogram, offer option to override and not do pihat if the user looks at graph and is like "nah" or script that looks if one person is paried w everyone else and rmeove that person or smth, look at times one person shows up
 echo PIHAT
 # pihat IBD estimate to .genome file with a min pihat value of .2
 $plinkPath --allow-no-sex --bfile "data_hwed" --genome --min 0.2 --out "pihat_min0.2" | grep -e "people" -e "excluding" -e "Among remaining" -e "are missing"
 #filters .genome file to only over .9 pihat- this is just for graphing and stuff
 awk '{if ($8 > 0.9) print $0 }' pihat_min0.2.genome > done_pihat.genome
 echo FILTERFOUNDERS
-#filters founders
+#filters founders # should bfile be pihat_min-.2 ?
+#do smth to give option to estimate relatedness for ancestry-adjusted analysis with reap or KING or RelateAdmixed kinship estimations in admixed populations- do visualization
 $plinkPath --allow-no-sex --bfile "data_hwed" --filter-founders --make-bed --out "data_founderfiltered" | grep -e "removed" -e "among remaining"
 echo FINALPIHAT
 #pihat on the actual data after founder filtered, filtering for pihat below .2
