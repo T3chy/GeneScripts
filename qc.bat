@@ -21,12 +21,12 @@ $plinkPath --allow-no-sex --make-bed  --mind .05 --bfile "data_genoed" --out "da
 # prolly make another grep call here to do the same thing but for mind
 echo HARDY
 #generate hwe equalibrium data
-$plinkPath --allow-no-sex --hardy --bfile "data_genoed" | echo "writing unfiltered hwe data..."
+$plinkPath --allow-no-sex --hardy --bfile "data_minded" #| echo "writing unfiltered hwe data..."
 # filter hwe file to remove all individuals w/ p values < 1*10^-5
 awk '{ if ($9 < 0.00001) print $0 }' plink.hwe > plinkfilteredhwe.hwe # switch the inequality sign whoops
 echo HARDY1
 # this filters the actual binary file to individuals w p values > 1*10^-6 
-$plinkPath --allow-no-sex --bfile "data_genoed" --hwe 1e-6 --make-bed "include-nonctrl" --out "hwe_filter_step1" | grep -e "removed"
+$plinkPath --allow-no-sex --bfile "data_minded" --hwe 1e-6 --make-bed --out "data_hwed" | grep -e "removed"
 # graph pihat values for all pairs- histogram, offer option to override and not do pihat if the user looks at graph and is like "nah" or script that looks if one person is paried w everyone else and rmeove that person or smth, look at times one person shows up
 echo PIHAT
 # pihat IBD estimate to .genome file with a min pihat value of .2
