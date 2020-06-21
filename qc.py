@@ -1,6 +1,8 @@
 # import subproccess
 def runstep(step, arg):
     pass
+inputfile = input("path to data?")
+outputdir = input("path where you'd like your results?")
 steps = input ("""
 planned qc steps:
 1) recode vcf to binary (skip this if you already have .bim and .map files)
