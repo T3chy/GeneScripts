@@ -29,7 +29,7 @@ echo HARDY1
 $plinkPath --allow-no-sex --bfile "data_minded" --hwe 1e-6 --make-bed --out "data_hwed" | grep -e "removed"
 # graph pihat values for all pairs- histogram, offer option to override and not do pihat if the user looks at graph and is like "nah" or script that looks if one person is paried w everyone else and rmeove that person or smth, look at times one person shows up
 echo PIHAT
-# pihat IBD estimate to .genome file with a min pihat value of .2
+# pihat IBD estimate to .genome file showing pihats only over .2
 $plinkPath --allow-no-sex --bfile "data_hwed" --genome --min 0.2 --out "pihat_min0.2" | grep -e "people" -e "excluding" -e "Among remaining" -e "are missing"
 #filters .genome file to only over .9 pihat- this is just for graphing and stuff
 awk '{if ($8 > 0.9) print $0 }' pihat_min0.2.genome > done_pihat.genome
@@ -38,7 +38,7 @@ echo FILTERFOUNDERS
 #do smth to give option to estimate relatedness for ancestry-adjusted analysis with reap or KING or RelateAdmixed kinship estimations in admixed populations- do visualization
 $plinkPath --allow-no-sex --bfile "data_hwed" --filter-founders --make-bed --out "data_founderfiltered" | grep -e "removed" -e "among remaining"
 echo FINALPIHAT
-#pihat on the actual data after founder filtered, filtering for pihat below .2
+#pihat on the actual data after founder filtered, showing pihats only over .2
 $plinkPath --allow-no-sex --bfile "data_founderfiltered" --make-bed --genome --min 0.2 --out "pihat_min0.2_in_founders" | grep -e "among remaining"
 #generate allele frequency for analysis / visualization
 $plinkPath --allow-no-sex --bfile "pihat_min0.2_in_founders" --freq --out "freq" | grep -e "Total genotyping rate"
