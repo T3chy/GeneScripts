@@ -2,22 +2,23 @@ import subprocess #TODO figure out how to pipe output and also actually run plin
 import pandas as pd
 import os 
 def recode(file, out="plink"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--vcf " + file, "--out " + out], shell=True, check=True) ### echo "recoding to binary..."
+    subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file ", file, "--out", out]) ### echo "recoding to binary..."
     return(out)
 def geno(file, num=.05, out="data_genoed"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed","--geno " + num, "--bfile "+ file, "--out " + out],shell=True,check=True) ### grep -e "warning" -e "removed"
+    subprocess.run(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out]) ### grep -e "warning" -e "removed"
     return(out)
 def mind(file, num=.05, out="data_minded"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed",  "--mind " + num, "--bfile" + file, "--out " + out],shell=True,check=True) ### grep -e "warning" -e "removed" -e "genotyping"
+    subprocess.run(args=["plink","--allow-no-sex", "--make-bed",  "--mind", str(num), "--bfile", file, "--out", out]) ### grep -e "warning" -e "removed" -e "genotyping"
     return(out)
 def hardy(file, Filter=False, p=1e-6, out="data_hwed"):
     if Filter:
-        subprocess.run(args=["plink","--allow-no-sex", "--bfile " + file, "--hwe " + p, "--make-bed", "--out " + out],shell=True,check=True) # | grep -e "removed"
+        subprocess.run(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out]) # | grep -e "removed"
         return(out)
     else:
-        subprocess.run(args=["plink","--allow-no-sex", "--hardy", "--bfile " + file]) # echo "writing unfiltered hwe data..."
+        subprocess.run(args=["plink","--allow-no-sex", "--hardy", "--bfile", file]) # echo "writing unfiltered hwe data..."
+        return(out)
 def filterfounders(file, out="data_founderfiltered"):
-    subprocess.run(args=["plink","--allow-no-sex", "--bfile " + file, "--filter-founders", "--make-bed", "--out " + out]) # grep -e "removed" -e "among remaining"
+    subprocess.run(args=["plink","--allow-no-sex", "--bfile", file, "--filter-founders", "--make-bed", "--out", out]) # grep -e "removed" -e "among remaining"
     return(out)
 def cleanpihat(file):
     pihat = pd.DataFrame(pd.read_table(file))
@@ -36,6 +37,7 @@ def main(steps,startfile,outdir): # add option to change around thresholds
         elif step == "4":
             hardy(out, Filter=True)
         elif step == "5":
+            print(out)
             out = hardy(out)
         elif step == "6":
             print("work in progress")
@@ -48,11 +50,13 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             pass
             # todo workin on this to make it actually useful
         elif step == "9":
-            subprocess.run(args=["Rscript", "-e \"require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"\"freq.frq\"\", skip=1); pdf(\"\"freq.pdf\"\"); hist(frq\$V5);dev.off()\""])
+            subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"freq.frq\", skip=1); pdf(\"freq.pdf\"); hist(frq\$V5);dev.off()\""])
         elif step == "10":
-            subprocess.run(args=["Rscript", "-e \"require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"\"plink.hwe\"\",skip=1); pdf(\"\"hwe.pdf\"\"); ggplot(hwe, aes(V9)) +geom_density();dev.off()\""])
+            subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"plink.hwe\",skip=1); pdf(\"hwe.pdf\"); ggplot(hwe, aes(V9)) +geom_density();dev.off()\""])
 inputfile = input("path to data?")
+inputfile = '/home/elamd/Downloads/toy'
 outputdir = input("path where you'd like your results?")
+outputdir = '/home/elamd/projects/GeneScripts/'
 steps = input ("""
 planned qc steps:
 1) recode vcf to binary (skip this if you already have .bim and .map files)
