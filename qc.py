@@ -1,25 +1,35 @@
 import subprocess #TODO figure out how to pipe output and also actually run plink, make funcs return plink output and grep it 
 import pandas as pd
-import os 
+import os
+import time
 def recode(file, out="plink"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file ", file, "--out", out]) ### echo "recoding to binary..."
+    recode = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE) ### echo "recoding to binary..."
+    print('yes')
+    time.sleep(3)
+    output = recode.stdout.read()
     return(out)
 def geno(file, num=.05, out="data_genoed"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out]) ### grep -e "warning" -e "removed"
+    geno = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE) ### grep -e "warning" -e "removed"
     return(out)
 def mind(file, num=.05, out="data_minded"):
-    subprocess.run(args=["plink","--allow-no-sex", "--make-bed",  "--mind", str(num), "--bfile", file, "--out", out]) ### grep -e "warning" -e "removed" -e "genotyping"
+    mind = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed",  "--mind", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE) ### grep -e "warning" -e "removed" -e "genotyping"
     return(out)
 def hardy(file, Filter=False, p=1e-6, out="data_hwed"):
     if Filter:
-        subprocess.run(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out]) # | grep -e "removed"
-        return(out)
+        hardy= subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out],stdout=subprocess.PIPE) # | grep -e "removed"
     else:
-        subprocess.run(args=["plink","--allow-no-sex", "--hardy", "--bfile", file]) # echo "writing unfiltered hwe data..."
-        return(out)
-def filterfounders(file, out="data_founderfiltered"):
-    subprocess.run(args=["plink","--allow-no-sex", "--bfile", file, "--filter-founders", "--make-bed", "--out", out]) # grep -e "removed" -e "among remaining"
+        hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file]) # echo "writing unfiltered hwe data..."
     return(out)
+def filterfounders(file, out="data_founderfiltered"):
+    ff = subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--filter-founders", "--make-bed", "--out", out],stdout=subprocess.PIPE) # grep -e "removed" -e "among remaining"
+    return(out)
+def freq(file, x=False, out="freq"):
+    if x:
+        freqx= subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freqx", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
+    else:
+        freq subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
+    return(out)
+
 def cleanpihat(file):
     pihat = pd.DataFrame(pd.read_table(file))
     # todo check for a large amount of one ID appearing in pairs 
