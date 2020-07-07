@@ -3,9 +3,7 @@ import pandas as pd
 import os
 import time
 def recode(file, out="plink"):
-    recode = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE) ### echo "recoding to binary..."
-    print('yes')
-    time.sleep(3)
+    recode = subprocess.Popen(args=['./qc.bat'],stdout=subprocess.PIPE) ### echo "recoding to binary..."
     output = recode.stdout.read()
     return(out)
 def geno(file, num=.05, out="data_genoed"):
@@ -27,15 +25,18 @@ def freq(file, x=False, out="freq"):
     if x:
         freqx= subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freqx", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
     else:
-        freq subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
+        freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
     return(out)
 
-def cleanpihat(file):
-    pihat = pd.DataFrame(pd.read_table(file))
-    # todo check for a large amount of one ID appearing in pairs 
+def cleanpihat(file,thresh,out='cleanedplink'):
+    ibd = pd.read_csv('plink.genome',sep=' ')
+    for index, row in ibd.iterrows():
+        
 
+    # todo check for a large amount of one ID appearing in pairs 
+    
 def main(steps,startfile,outdir): # add option to change around thresholds
-    os.chdir(outdir)
+    #os.chdir(outdir)
     out = startfile
     for step in steps.split(" "):
         if step == "1":
@@ -63,8 +64,8 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"freq.frq\", skip=1); pdf(\"freq.pdf\"); hist(frq\$V5);dev.off()\""])
         elif step == "10":
             subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"plink.hwe\",skip=1); pdf(\"hwe.pdf\"); ggplot(hwe, aes(V9)) +geom_density();dev.off()\""])
-inputfile = input("path to data?")
-inputfile = '/home/elamd/Downloads/toy'
+inputdir= input("path to data?")
+inputdir = '/home/elamd/Downloads/toy'
 outputdir = input("path where you'd like your results?")
 outputdir = '/home/elamd/projects/GeneScripts/'
 steps = input ("""
