@@ -25,10 +25,16 @@ def geno(file, num=.05, out="data_genoed"):
     output = geno.stdout
     getterms(output,['warning','removed'])
     return(out)
-def genome(file, out="IBD"):
-    genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
-    output = genome.stdout
-    getterms(output,["Markers","Finished"])
+def genome(file, out="IBD", filter=False, x=.05):
+    if filter:
+            genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--min", str(x), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
+            output = genome.stdout
+            etterms(output,["Markers","removed"])
+            return(out)
+    else:
+        genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
+        output = genome.stdout
+        getterms(output,["Markers","Finished"])
 def mind(file, num=.05, out="data_minded"):
     mind = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed",  "--mind", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed" -e "genotyping"
     output = mind.stdout    
