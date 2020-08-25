@@ -16,9 +16,14 @@ def parser(stdoutput):
     stdoutput = str(stdoutput.stdout)
     print("graph generated")
 def recode(file, out="plink"):
+<<<<<<< HEAD
     recode = subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### echo "recoding to binary..." 
     output = recode.stdout
     print("recoding to binary...")
+=======
+    recode = subprocess.Popen(args=['./qc.bat'],stdout=subprocess.PIPE) ### echo "recoding to binary..."
+    output = recode.stdout.read()
+>>>>>>> 59b0994a446978ab5b76882873b49b1c099ff4eb
     return(out)
 def geno(file, num=.05, out="data_genoed"):
     geno = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
@@ -52,17 +57,24 @@ def freq(file, filter=False, x=.05, out="freq"):
     if filter:
         freq= subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--maf", str(x), "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
     else:
+<<<<<<< HEAD
         freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
     output = freq.stdout
     getterms(output,['Total genotyping rate'])
+=======
+        freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
+>>>>>>> 59b0994a446978ab5b76882873b49b1c099ff4eb
     return(out)
 
-def cleanpihat(file):
-    pihat = pd.DataFrame(pd.read_table(file))
-    # todo check for a large amount of one ID appearing in pairs 
+def cleanpihat(file,thresh,out='cleanedplink'):
+    ibd = pd.read_csv('plink.genome',sep=' ')
+    for index, row in ibd.iterrows():
+        
 
+    # todo check for a large amount of one ID appearing in pairs 
+    
 def main(steps,startfile,outdir): # add option to change around thresholds
-    os.chdir(outdir)
+    #os.chdir(outdir)
     out = startfile
     for step in steps.split(" "):
         if step == "1":
