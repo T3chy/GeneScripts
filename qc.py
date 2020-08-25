@@ -11,19 +11,14 @@ def getterms(string,terms):
                 print(line)
 def parser(stdoutput):
     if stdoutput.returncode == 1:
-        print('error in graph makin, sorry bout that')
+        print(stdoutput.stdout)
         return 0
     stdoutput = str(stdoutput.stdout)
     print("graph generated")
 def recode(file, out="plink"):
-<<<<<<< HEAD
     recode = subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### echo "recoding to binary..." 
     output = recode.stdout
     print("recoding to binary...")
-=======
-    recode = subprocess.Popen(args=['./qc.bat'],stdout=subprocess.PIPE) ### echo "recoding to binary..."
-    output = recode.stdout.read()
->>>>>>> 59b0994a446978ab5b76882873b49b1c099ff4eb
     return(out)
 def geno(file, num=.05, out="data_genoed"):
     geno = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
@@ -57,21 +52,17 @@ def freq(file, filter=False, x=.05, out="freq"):
     if filter:
         freq= subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--maf", str(x), "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
     else:
-<<<<<<< HEAD
         freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
     output = freq.stdout
     getterms(output,['Total genotyping rate'])
-=======
-        freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--freq", "--out", out],stdout=subprocess.PIPE) # | grep -e "Total genotyping rate"
->>>>>>> 59b0994a446978ab5b76882873b49b1c099ff4eb
     return(out)
 
-def cleanpihat(file,thresh,out='cleanedplink'):
-    ibd = pd.read_csv('plink.genome',sep=' ')
-    for index, row in ibd.iterrows():
+# def cleanpihat(file,thresh,out='cleanedplink'):
+#     ibd = pd.read_csv('plink.genome',sep=' ')
+#     for index, row in ibd.iterrows():
         
 
-    # todo check for a large amount of one ID appearing in pairs 
+#     # todo check for a large amount of one ID appearing in pairs 
     
 def main(steps,startfile,outdir): # add option to change around thresholds
     #os.chdir(outdir)
@@ -108,12 +99,13 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             parser(hwegraph)
             print("graph saved to \'hwe.pdf\'")
         elif step == "11":
-            print("generating IBD pairs-per-individual distribution...")
-            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\"); hist(ibd$V2);hist(ibd$V4, add=T);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+            print("generating pi-hat value distribution...")
+            subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10);dev.off()"],stdout=subprocess.PIPE,encoding='utf-8')
             parser(hwegraph)
+            print("graph saved to \'IBD.pdf\'")
 
 inputfile = input("path to data?")
-inputfile = '/home/elamd/projects/GeneScripts/toy'
+inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
 outputdir = input("path where you'd like your results?")
 outputdir = '/home/elamd/projects/GeneScripts/'
 steps = input ("""
@@ -129,7 +121,7 @@ planned qc steps:
 planned graphing steps:
 9) graph p-values for HWE
 10) graph MAF data
-11) graph distribution of IBD pairs per unique ID
+11) graph distribution of pi-hat values for IBD pairs
 please enter any number of these steps in the order you'd by number seperated with spaces, or press enter to run them all in the order presented!
 """)
 if __name__ == "__main__":
