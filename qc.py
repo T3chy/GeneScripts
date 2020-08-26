@@ -11,6 +11,7 @@ def getterms(string,terms):
                 print(line)
 def parser(stdoutput):
     if stdoutput.returncode == 1:
+        print("graph makin' went wrong: here's the error output")
         print(stdoutput.stdout)
         return 0
     stdoutput = str(stdoutput.stdout)
@@ -29,22 +30,22 @@ def genome(file, out="IBD", filter=False, x=.05):
     if filter:
             genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--min", str(x), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
             output = genome.stdout
-            etterms(output,["Markers","removed"])
+            getterms(output,["Finished","Error","Warning"])
             return(out)
     else:
         genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
         output = genome.stdout
-        getterms(output,["Markers","Finished"])
 def mind(file, num=.05, out="data_minded"):
-    mind = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed",  "--mind", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed" -e "genotyping"
-    output = mind.stdout    
-    getterms(output,['warning','removed'])    
+    print("gamer")
+    mind = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed",  "--mind", ".05", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed" -e "genotyping"
+    output = mind.stdout  
+    getterms(output,['warning','removed'])  
     return(out)
-def hardy(file, Filter=False, p=1e-6, out="data_hwed"):
+def hardy(file, Filter=False, p=.05, out="data_hwed"):
     if Filter:
         hardy= subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "removed"
         output = hardy.stdout    
-        getterms(output,['warning','removed'])    
+        getterms(output,[""])    
     else:
         hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
         print("writing unfiltered hwe data...")
@@ -81,33 +82,34 @@ def main(steps,startfile,outdir): # add option to change around thresholds
         elif step == "3":
             out = mind(out)
         elif step == "4":
-            hardy(out, Filter=True)
+            hardy(hardy(out, Filter=True))
         elif step == "5":
             print(out)
             out = hardy(out)
         elif step == "6":
             genome(out)
             # todo workin on this to make it actually useful
-        elif step == "7":
-            out = filterfounders(out)
+        elif step ==  "7":
+            out = genome(out,filter=True)
         elif step == "8":
-            out = freq(out)
-            pass
-            # todo workin on this to make it actually useful
+            out = filterfounders(out)
         elif step == "9":
+            out = freq(out)
+            # todo workin on this to make it actually useful
+        elif step == "10":
            print("generating frequency graph...")
            freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"freq.frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
            parser(freqgraph)
            print("graph saved to \'freq.pdf\'")
-        elif step == "10":
+        elif step == "11":
             print("generating hwe graph...")
-            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"plink.hwe\",skip=1); pdf(\"hwe.pdf\"); ggplot(hwe, aes(V9)) +geom_density();dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"plink.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
             parser(hwegraph)
             print("graph saved to \'hwe.pdf\'")
-        elif step == "11":
+        elif step == "12":
             print("generating pi-hat value distribution...")
-            subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10);dev.off()"],stdout=subprocess.PIPE,encoding='utf-8')
-            parser(hwegraph)
+            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
+            parser(pihatgraph)
             print("graph saved to \'IBD.pdf\'")
 
 inputfile = input("path to data?")
@@ -122,15 +124,17 @@ planned qc steps:
 4) --hardy to generate HWE data for p-value visualization
 5) --hwe 1e-6 to filter out all individuals with a p value lower than 1e-6
 6) --genome to generate IBD data report for visualization
-7) --filter-founders to filter out all samples with at least one known parental ID 
-8) --freq to generate MAF data report for visualization
+7) --genome --min .05 to filter for IBD
+8) --filter-founders to filter out all samples with at least one known parental ID 
+9) --freq to generate MAF data report for visualization
+
 planned graphing steps:
-9) graph p-values for HWE
-10) graph MAF data
-11) graph distribution of pi-hat values for IBD pairs
+10) graph p-values for HWE
+11) graph MAF data
+12) graph distribution of pi-hat values for IBD pairs
 please enter any number of these steps in the order you'd by number seperated with spaces, or press enter to run them all in the order presented!
 """)
 if __name__ == "__main__":
     if steps == "":
-        steps = "1 2 3 4 5 6 7 8 9 10 11"
+        steps = "1 2 3 4 5 6 7 8 9 10 11 12"
     main(steps,inputfile,outputdir)
