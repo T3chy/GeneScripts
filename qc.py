@@ -82,17 +82,16 @@ def main(steps,startfile,outdir): # add option to change around thresholds
         elif step == "3":
             out = mind(out)
         elif step == "4":
-            hardy(hardy(out, Filter=True))
-        elif step == "5":
-            print(out)
-            out = hardy(out)
+            hardy(out, Filter=True)
+        elif step ==  "5":
+           out = genome(out,filter=True)
         elif step == "6":
+            out = filterfounders(out)
+        elif step == "7":
+            hardy(out)
+        elif step == "8":
             genome(out)
             # todo workin on this to make it actually useful
-        elif step ==  "7":
-            out = genome(out,filter=True)
-        elif step == "8":
-            out = filterfounders(out)
         elif step == "9":
             out = freq(out)
             # todo workin on this to make it actually useful
@@ -112,20 +111,25 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             parser(pihatgraph)
             print("graph saved to \'IBD.pdf\'")
 
-inputfile = input("path to data?")
-inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
-outputdir = input("path where you'd like your results?")
-outputdir = '/home/elamd/projects/GeneScripts/'
+inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
+example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1""")
+# inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
+outputdir = input("""path where you'd like your results?
+example: /home/elamd/projects/GeneScripts/ will put all of the intermediary files, summary stats, and pdfs in the folder "GeneScripts"
+""")
+ #outputdir = '/home/elamd/projects/GeneScripts/'
 steps = input ("""
 planned qc steps:
 1) recode vcf to binary (skip this if you already have .bim and .map files)
 2) --geno .05 to remove all markers (SNPs) with more than 5% missingness
 3) --mind .05 to remove all individuals with more than 5% missingness
-4) --hardy to generate HWE data for p-value visualization
-5) --hwe 1e-6 to filter out all individuals with a p value lower than 1e-6
-6) --genome to generate IBD data report for visualization
-7) --genome --min .05 to filter for IBD
-8) --filter-founders to filter out all samples with at least one known parental ID 
+4) --hwe .05 to filter out all individuals with a p value lower than 1e-6
+5) --genome --min .05 to filter for IBD
+8) --filter-founders to filter out all samples with at least one known parental ID
+
+planned summary data generation steps:
+6) --hardy to generate HWE data for p-value visualization
+7) --genome to generate IBD data report for visualization
 9) --freq to generate MAF data report for visualization
 
 planned graphing steps:
