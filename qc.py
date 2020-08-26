@@ -45,7 +45,7 @@ def hardy(file, Filter=False, p=.05, out="data_hwed"):
     if Filter:
         hardy= subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "removed"
         output = hardy.stdout    
-        getterms(output,[""])    
+        getterms(output,["removed"])    
     else:
         hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
         print("writing unfiltered hwe data...")
@@ -112,7 +112,8 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             print("graph saved to \'IBD.pdf\'")
 
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
-example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1""")
+example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
+""")
 # inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
 outputdir = input("""path where you'd like your results?
 example: /home/elamd/projects/GeneScripts/ will put all of the intermediary files, summary stats, and pdfs in the folder "GeneScripts"
