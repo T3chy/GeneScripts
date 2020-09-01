@@ -51,7 +51,7 @@ def hardy(file, Filter=False, p=.05, out="data_hwed"):
     if Filter:
         hardy= subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "removed"
         output = hardy.stdout    
-        getterms(output,["removed"])    
+        getterms(output,["removed"])
     else:
         hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
         print("writing unfiltered hwe data...")
@@ -88,14 +88,13 @@ def main(steps,startfile,outdir): # add option to change around thresholds
         elif step == "3":
             out = mind(out)
         elif step == "4":
-            hardy(out, Filter=True)
+            out = hardy(out, Filter=True)
         elif step == "5":
             out = filterfounders(out)
         elif step == "6":
             hardy(out)
         elif step == "7":
             genome(out)
-            # todo workin on this to make it actually useful
         elif step == "8":
             out = freq(out)
             # todo workin on this to make it actually useful
@@ -114,7 +113,7 @@ def main(steps,startfile,outdir): # add option to change around thresholds
             pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
             parser(pihatgraph)
             print("graph saved to \'IBD.pdf\'")
-
+    return out
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
 example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
 """)
@@ -146,4 +145,5 @@ please enter any number of these steps in the order you'd by number seperated wi
 if __name__ == "__main__":
     if steps == "":
         steps = "1 2 3 4 5 6 7 8 9 10 11"
-    main(steps,inputfile,outputdir)
+    final = main(steps,inputfile,outputdir)
+    print("your qced files have the filename: " +final + " (plus their associated file extension)")
