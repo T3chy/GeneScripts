@@ -24,10 +24,8 @@ def king(file, out="king"):
     return(out)
 def recode(file, out="recoded"):
     out = file + "_recoded"
-    print("recode: writing file name:", out)
     recode = subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### echo "recoding to binary..." 
     output = recode.stdout
-    print(output)
     print("recoding to binary...")
     return(out)
 def geno(file, num=.05, out="genoed"):
@@ -92,7 +90,6 @@ def main(steps,startfile,outdir): # add option to change around thresholds
     #os.chdir(outdir)
     out = startfile
     for step in steps.split(" "):
-        print("step number is %d and out file name is %s",step,out)
         if step == "1":
               out = recode(out)
         elif step == "2":
