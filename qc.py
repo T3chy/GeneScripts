@@ -22,46 +22,57 @@ def king(file, out="king"):
     output = king.stdout
     getterms(output,[""])
     return(out)
-def recode(file, out="plink"):
+def recode(file, out="recoded"):
+    out = file + "_recoded"
+    print("recode: writing file name:", out)
     recode = subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### echo "recoding to binary..." 
     output = recode.stdout
+    print(output)
     print("recoding to binary...")
     return(out)
-def geno(file, num=.05, out="data_genoed"):
+def geno(file, num=.05, out="genoed"):
+    
+    out = file + "_genoed" + str(num)
     geno = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--geno", str(num), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
     output = geno.stdout
     getterms(output,['warning','removed'])
     return(out)
 def genome(file, out="IBD", filter=False, x=.05):
     if filter:
+            out = file + "_IBD" + str(x)
             genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--min", str(x), "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
             output = genome.stdout
             getterms(output,["Finished","Error","Warning"])
             return(out)
     else:
+        out = file + "_IBD_NO_FILTER"
         genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
         output = genome.stdout
-def mind(file, num=.05, out="data_minded"):
-    print("gamer")
+def mind(file, num=.05, out="minded"):
+    out = file + "_minded" + str(num)
     mind = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed",  "--mind", ".05", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed" -e "genotyping"
     output = mind.stdout  
-    getterms(output,['warning','removed'])  
+    getterms(output,['warning','removed']) 
     return(out)
-def hardy(file, Filter=False, p=.05, out="data_hwed"):
+def hardy(file, Filter=False, p=.05, out="hwed"):
     if Filter:
+        out = file + "_hwed" + str(p)
         hardy= subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--hwe",str(p), "--make-bed", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "removed"
         output = hardy.stdout    
         getterms(output,["removed"])
     else:
+        out = file + "_hwe_no_filter" 
         hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
         print("writing unfiltered hwe data...")
     return(out)
-def filterfounders(file, out="data_founderfiltered"):
+def filterfounders(file, out="founderfiltered"):
+    out = file + "_founderfiltered"
     ff = subprocess.Popen(args=["plink","--allow-no-sex", "--bfile", file, "--filter-founders", "--make-bed", "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # grep -e "removed" -e "among remaining"
     output = ff.stdout    
     getterms(output,['among remaining','removed']) 
     return(out)
 def freq(file, filter=False, x=.05, out="freq"):
+    out = file + "_freq" + str(x) # todo this fore the rest oif the commands 
     if filter:
         freq= subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--maf", str(x), "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
     else:
@@ -81,22 +92,23 @@ def main(steps,startfile,outdir): # add option to change around thresholds
     #os.chdir(outdir)
     out = startfile
     for step in steps.split(" "):
+        print("step number is %d and out file name is %s",step,out)
         if step == "1":
-             out = recode(out)
+              out = recode(out)
         elif step == "2":
-            out = geno(out)
+             out = geno(out)
         elif step == "3":
-            out = mind(out)
+             out = mind(out)
         elif step == "4":
-            out = hardy(out, Filter=True)
+             out = hardy(out, Filter=True)
         elif step == "5":
-            out = filterfounders(out)
+             out = filterfounders(out)
         elif step == "6":
             hardy(out)
         elif step == "7":
             genome(out)
         elif step == "8":
-            out = freq(out)
+             out = freq(out)
             # todo workin on this to make it actually useful
         elif step == "9":
            print("generating frequency graph...")
@@ -117,11 +129,11 @@ def main(steps,startfile,outdir): # add option to change around thresholds
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
 example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
 """)
-# inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
+inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
 outputdir = input("""path where you'd like your results?
 example: /home/elamd/projects/GeneScripts/ will put all of the intermediary files, summary stats, and pdfs in the folder "GeneScripts"
 """)
- #outputdir = '/home/elamd/projects/GeneScripts/'
+outputdir = '/home/elamd/projects/GeneScripts/'
 # ask laura about adding KING IBD and stuff
 steps = input ("""
 planned qc steps:
