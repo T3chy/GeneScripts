@@ -43,7 +43,7 @@ def genome(file, out="IBD", filter=False, x=.05):
             getterms(output,["Finished","Error","Warning"])
             return(out)
     else:
-        out = file + "_IBD_NO_FILTER"
+        out = file + "_IBD_no_filter" 
         genome = subprocess.Popen(args=["plink","--allow-no-sex", "--make-bed","--genome", "--bfile", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### grep -e "warning" -e "removed"
         output = genome.stdout
 def mind(file, num=.05, out="minded"):
@@ -59,8 +59,8 @@ def hardy(file, Filter=False, p=.05, out="hwed"):
         output = hardy.stdout    
         getterms(output,["removed"])
     else:
-        out = file + "_hwe_no_filter" 
-        hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
+        out = file + "_hardy_no_filter" 
+        hardy = subprocess.Popen(args=["plink","--allow-no-sex", "--hardy", "--bfile", file, "--out", out], stdout=subprocess.PIPE, encoding='utf-8') # echo "writing unfiltered hwe data..."
         print("writing unfiltered hwe data...")
     return(out)
 def filterfounders(file, out="founderfiltered"):
@@ -105,32 +105,32 @@ def main(steps,startfile,outdir): # add option to change around thresholds
         elif step == "7":
             genome(out)
         elif step == "8":
-             out = freq(out)
+             freq(out)
             # todo workin on this to make it actually useful
         elif step == "9":
            print("generating frequency graph...")
-           freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"freq.frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+           freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"" +out +"_frq0.05"+".frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
            parser(freqgraph)
            print("graph saved to \'freq.pdf\'")
         elif step == "10":
             print("generating hwe graph...")
-            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\"plink.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\""+out+"_hardy_no_filter.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
             parser(hwegraph)
             print("graph saved to \'hwe.pdf\'")
         elif step == "11":
             print("generating pi-hat value distribution...")
-            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\"IBD.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
+            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\""+out+"_IBD_no_filter.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
             parser(pihatgraph)
             print("graph saved to \'IBD.pdf\'")
     return out
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
 example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
 """)
-inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
+#inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
 outputdir = input("""path where you'd like your results?
 example: /home/elamd/projects/GeneScripts/ will put all of the intermediary files, summary stats, and pdfs in the folder "GeneScripts"
 """)
-outputdir = '/home/elamd/projects/GeneScripts/'
+#outputdir = '/home/elamd/projects/GeneScripts/test/'
 # ask laura about adding KING IBD and stuff
 steps = input ("""
 planned qc steps:
