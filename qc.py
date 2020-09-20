@@ -22,6 +22,15 @@ def king(file, out="king"):
     output = king.stdout
     getterms(output,[""])
     return(out)
+def chrom(file,rangeincl):
+    if rangeincl == "":
+        return file
+    else:
+        out = file + "_chromed"
+        chrom = subprocess.run(args=["plink", "--allow-no-sex", "--make-bed", "--chr", rangeincl, "--out", out], stdout=subprocess.PIPE, encoding="utf-8")
+        output = chrom.stdout
+        getterms(output, [])
+        return(out)
 def recode(file, out="recoded"):
     out = file + "_recoded"
     recode = subprocess.run(args=["plink","--allow-no-sex", "--make-bed", "--recode", "--file", file, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') ### echo "recoding to binary..." 
@@ -89,9 +98,12 @@ def freq(file, filter=False, x=.05, out="freq"):
 def main(steps,startfile,outdir): # add option to change around thresholds
     #os.chdir(outdir)
     out = startfile
+    chrange = input("""Would you like to only include some chromosomes? If you would, enter the desired chromosomes in a plink-acceptable format eg. 1-4,22,xy or something similar. If you want to keep all chromosomes, just press enter!""")
+    if chrange != "":
+        out = chrom(out,chrange)
     for step in steps.split(" "):
         if step == "1":
-              out = recode(out)
+             out = recode(out)
         elif step == "2":
              out = geno(out)
         elif step == "3":
