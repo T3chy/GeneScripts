@@ -87,7 +87,8 @@ def freq(file, filter=False, x=.05, out="freq"):
     output = freq.stdout
     getterms(output,['Total genotyping rate'])
     return(out)
-
+def maf(file, out="maf"):
+    print("write this!")
 # def cleanpihat(file,thresh,out='cleanedplink'):
 #     ibd = pd.read_csv('plink.genome',sep=' ')
 #     for index, row in ibd.iterrows():
@@ -102,38 +103,40 @@ def main(steps,startfile,outdir): # add option to change around thresholds
     if chrange != "":
         out = chrom(out,chrange)
     for step in steps.split(" "):
-        if step == "1":
+        if step == "recode":
              out = recode(out)
-        elif step == "2":
+        elif step == "geno":
              out = geno(out)
-        elif step == "3":
+        elif step == "mind":
              out = mind(out)
-        elif step == "4":
+        elif step == "hwe":
              out = hardy(out, Filter=True)
-        elif step == "5":
+        elif step == "filterfounders":
              out = filterfounders(out)
-        elif step == "6":
+        elif step == "hardy":
             hardy(out)
-        elif step == "7":
-            genome(out)
-        elif step == "8":
-             freq(out)
+        elif step == "maf":
+            maf(out)
+       # elif step == "maf":
+       #     genome(out)
+      #  elif step == "maf":
+      #       freq(out)
             # todo workin on this to make it actually useful
-        elif step == "9":
-           print("generating frequency graph...")
-           freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"" +out +"_frq0.05"+".frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
-           parser(freqgraph)
-           print("graph saved to \'freq.pdf\'")
-        elif step == "10":
-            print("generating hwe graph...")
-            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\""+out+"_hardy_no_filter.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
-            parser(hwegraph)
-            print("graph saved to \'hwe.pdf\'")
-        elif step == "11":
-            print("generating pi-hat value distribution...")
-            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\""+out+"_IBD_no_filter.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
-            parser(pihatgraph)
-            print("graph saved to \'IBD.pdf\'")
+#        elif step == "9":
+#           print("generating frequency graph...")
+#           freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"" +out +"_frq0.05"+".frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+#           parser(freqgraph)
+#           print("graph saved to \'freq.pdf\'")
+#        elif step == "10":
+#            print("generating hwe graph...")
+#            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\""+out+"_hardy_no_filter.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
+#            parser(hwegraph)
+#            print("graph saved to \'hwe.pdf\'")
+#        elif step == "11":
+#            print("generating pi-hat value distribution...")
+#            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\""+out+"_IBD_no_filter.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
+#            parser(pihatgraph)
+#            print("graph saved to \'IBD.pdf\'")
     return out
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
 example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
@@ -144,24 +147,35 @@ example: /home/elamd/projects/GeneScripts/ will put all of the intermediary file
 """)
 #outputdir = '/home/elamd/projects/GeneScripts/test/'
 # ask laura about adding KING IBD and stuff
+#steps = input ("""
+#planned qc steps:
+#1) recode vcf to binary (skip this if you already have .bim and .map files)
+#2) --geno .05 to remove all markers (SNPs) with more than 5% missingness
+#3) --mind .05 to remove all individuals with more than 5% missingness
+#4) --hwe .05 to filter out all individuals with a p value lower than 1e-6
+#5) --filter-founders to filter out all samples with at least one known parental ID
+#
+#planned summary data generation steps:
+#6) --hardy to generate HWE data for p-value visualization
+#7) --genome to generate IBD data report for visualization
+#8) --freq to generate MAF data report for visualization
+#
+#planned graphing steps:
+#9) graph p-values for HWE
+#10) graph MAF data
+#11) graph distribution of pi-hat values for IBD pairs
+#please enter any number of these steps in the order you'd by number seperated with spaces, or press enter to run them all in the order presented!
+#""")
 steps = input ("""
-planned qc steps:
-1) recode vcf to binary (skip this if you already have .bim and .map files)
-2) --geno .05 to remove all markers (SNPs) with more than 5% missingness
-3) --mind .05 to remove all individuals with more than 5% missingness
-4) --hwe .05 to filter out all individuals with a p value lower than 1e-6
-5) --filter-founders to filter out all samples with at least one known parental ID
+___________________________________________________________________________________________________
+|                                  Welcome to this QC Script!                                     |
+| Please type the plink commands you would like to perform in the order you'd like them performed | 
+|                           Put a value where applicable! (eg, geno 0.05)                         |
+|                  For example, a basic filter would be \"geno 0.05 mind 0.05\"                     |
+|                                   Available QC commands:                                        |
+|                     geno(--geno x), mind(--mind x), hwe(--hwe x), maf(--maf)                    |
+|_________________________________________________________________________________________________|
 
-planned summary data generation steps:
-6) --hardy to generate HWE data for p-value visualization
-7) --genome to generate IBD data report for visualization
-8) --freq to generate MAF data report for visualization
-
-planned graphing steps:
-9) graph p-values for HWE
-10) graph MAF data
-11) graph distribution of pi-hat values for IBD pairs
-please enter any number of these steps in the order you'd by number seperated with spaces, or press enter to run them all in the order presented!
 """)
 if __name__ == "__main__":
     if steps == "":
