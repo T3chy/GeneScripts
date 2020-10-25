@@ -87,8 +87,12 @@ def freq(file, filter=False, x=.05, out="freq"):
     output = freq.stdout
     getterms(output,['Total genotyping rate'])
     return(out)
-def maf(file, out="maf"):
-    print("write this!")
+def maf(file, x=0.05, out="maf"):
+    out = file + "_maf" + str(x)
+    freq = subprocess.Popen(args=['plink', "--allow-no-sex", "--bfile", file, "--maf", x, "--out", out],stdout=subprocess.PIPE, encoding='utf-8') # | grep -e "Total genotyping rate"
+    output = freq.stdout
+    getterms(output, ["removed"])
+    return(out)
 # def cleanpihat(file,thresh,out='cleanedplink'):
 #     ibd = pd.read_csv('plink.genome',sep=' ')
 #     for index, row in ibd.iterrows():
@@ -102,37 +106,51 @@ def main(steps,startfile,outdir): # add option to change around thresholds
     chrange = input("""Would you like to only include some chromosomes? If you would, enter the desired chromosomes in a plink-acceptable format eg. 1-4,22,xy or something similar. If you want to keep all chromosomes, just press enter!""")
     if chrange != "":
         out = chrom(out,chrange)
-    for step in steps.split(" "):
-        if step == "recode":
+    steps = steps.split(" ")
+    x = 0.05
+    pos = 0
+    for i in steps:
+        try:
+            if steps[pos+1].isnumeric():
+                x = steps[i+1]
+                flag = 1
+            else:
+                x = 0.05
+                flag = 0
+        except:
+            x = 0.05
+            flag = 0
+        if steps[pos] == "recode":
              out = recode(out)
-        elif step == "geno":
-             out = geno(out)
-        elif step == "mind":
-             out = mind(out)
-        elif step == "hwe":
-             out = hardy(out, Filter=True)
-        elif step == "filterfounders":
+        elif steps[pos] == "geno":
+             out = geno(out,x)
+        elif steps[pos] == "mind":
+             out = mind(out,x)
+        elif steps[pos] == "hwe":
+             out = hardy(out, x, Filter=True)
+        elif steps[pos] == "filterfounders":
              out = filterfounders(out)
-        elif step == "hardy":
+        elif steps[pos] == "hardy":
             hardy(out)
-        elif step == "maf":
-            maf(out)
-       # elif step == "maf":
+        elif steps[pos] == "maf":
+            out = maf(out,x)
+        pos += 2 if flag else 1
+       # elif steps[pos] == "maf":
        #     genome(out)
-      #  elif step == "maf":
+      #  elif steps[pos] == "maf":
       #       freq(out)
             # todo workin on this to make it actually useful
-#        elif step == "9":
+#        elif steps[pos] == "9":
 #           print("generating frequency graph...")
 #           freqgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); frq <- read.table(\"" +out +"_frq0.05"+".frq\", skip=1); pdf(\"freq.pdf\"); hist(frq$V5);dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
 #           parser(freqgraph)
 #           print("graph saved to \'freq.pdf\'")
-#        elif step == "10":
+#        elif steps[pos] == "10":
 #            print("generating hwe graph...")
 #            hwegraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); hwe <- read.table(\""+out+"_hardy_no_filter.hwe\",skip=1); pdf(\"hwe.pdf\"); hist(hwe$V9, main=\"Hardy-Weinberg Test Density\", xlab=\"p-value\");dev.off()"],stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding='utf-8')
 #            parser(hwegraph)
 #            print("graph saved to \'hwe.pdf\'")
-#        elif step == "11":
+#        elif steps[pos] == "11":
 #            print("generating pi-hat value distribution...")
 #            pihatgraph = subprocess.run(args=["Rscript", "-e", "require(\"tidyverse\"); setwd(getwd()); ibd <- read.table(\""+out+"_IBD_no_filter.genome\",skip=1); pdf(\"IBD.pdf\");hist(ibd$V10, main=\"Pi-Hat Values\",xlab=\"pi-hat\");dev.off()"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,encoding='utf-8')
 #            parser(pihatgraph)
@@ -171,7 +189,7 @@ ________________________________________________________________________________
 |                                  Welcome to this QC Script!                                     |
 | Please type the plink commands you would like to perform in the order you'd like them performed | 
 |                           Put a value where applicable! (eg, geno 0.05)                         |
-|                  For example, a basic filter would be \"geno 0.05 mind 0.05\"                     |
+|                  For example, the default setting is \"geno 0.05 mind 0.05\"                    |
 |                                   Available QC commands:                                        |
 |                     geno(--geno x), mind(--mind x), hwe(--hwe x), maf(--maf)                    |
 |_________________________________________________________________________________________________|
@@ -179,6 +197,6 @@ ________________________________________________________________________________
 """)
 if __name__ == "__main__":
     if steps == "":
-        steps = "1 2 3 4 5 6 7 8 9 10 11"
+        steps = "geno 0.05 mind 0.05"
     final = main(steps,inputfile,outputdir)
     print("your qced files have the filename: " +final + " (plus their associated file extension)")
