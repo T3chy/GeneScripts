@@ -159,11 +159,11 @@ def main(steps,startfile,outdir): # add option to change around thresholds
 inputfile = input("""path to data (write the full path including the name, but not the extension (an extension is the stuff following the period ex .map is an extension)
 example: if my input plink files are named hapmap1.whateverextension, my input here would be /home/elamd/projects/GeneScripts/hapmap1
 """)
-#inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
+inputfile = '/home/elamd/projects/GeneScripts/hapmap1'
 outputdir = input("""path where you'd like your results?
 example: /home/elamd/projects/GeneScripts/ will put all of the intermediary files, summary stats, and pdfs in the folder "GeneScripts"
 """)
-#outputdir = '/home/elamd/projects/GeneScripts/test/'
+outputdir = '/home/elamd/projects/GeneScripts/'
 # ask laura about adding KING IBD and stuff
 #steps = input ("""
 #planned qc steps:
@@ -189,7 +189,7 @@ ________________________________________________________________________________
 |                                  Welcome to this QC Script!                                     |
 | Please type the plink commands you would like to perform in the order you'd like them performed | 
 |                           Put a value where applicable! (eg, geno 0.05)                         |
-|                  For example, the default setting is \"geno 0.05 mind 0.05\"                    |
+|                  For example, the default setting is \"geno 0.05 mind 0.05\"                      |
 |                                   Available QC commands:                                        |
 |                     geno(--geno x), mind(--mind x), hwe(--hwe x), maf(--maf)                    |
 |_________________________________________________________________________________________________|
