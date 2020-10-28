@@ -1,10 +1,11 @@
+# make it check if args else run interactivie
+# ex usage python qc.py /dir/to/data /dir/to/output args
+# plot (not minor) allle freq for specific alleles (submit list of SNPs and the allele for which you want the frequency in that snp
 import subprocess  
 # take out redundant genome 
-import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import time
-
+import sys
 def cls():
         os.system('cls' if os.name=='nt' else 'clear')
 def getterms(string,terms):
@@ -26,7 +27,7 @@ def king(file, out="king"):
     getterms(output,[""])
     return(out)
 def chrom(file,rangeincl):
-    if rangeincl == "":
+    if rangeincl == "0":
         return file
     else:
         out = file + "_chromed" + rangeincl
@@ -179,9 +180,18 @@ ________________________________________________________________________________
  
     """)
     return steps, inputfile, outputdir, chrange
+final = ""
 if __name__ == "__main__":
-    steps, inputfile, outputdir, chrange = menu()
-    if steps == "":
-        steps = "geno 0.05 mind 0.05"
-    final = main(steps,inputfile,outputdir,chrange)
-    print("your qced files have the filename: " +final + " (plus their associated file extension)")
+    if len(sys.argv) == 1:
+        steps, inputfile, outputdir, chrange = menu()
+        if steps == "":
+            steps = "geno 0.05 mind 0.05"
+        final = main(steps,inputfile,outputdir,chrange)
+    else:
+        if len(sys.argv) >= 3:
+            steps = " ".join(sys.argv[3:])
+            final = main(steps, sys.argv[1], sys.argv[2], sys.argv[3])
+        else:
+            print("command line usage: python qc.py /path/to/data /path/to/output/dir chromosomerange(0 for all) desiredfunctions")
+    if final:
+        print("your final file is called " + final + " plus it's various extensions")
