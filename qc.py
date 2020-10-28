@@ -96,9 +96,8 @@ def maf(file, x=0.05, out="maf"):
     getterms(output, ["removed"])
     return(out)
 # def cleanpihat(file,thresh,out='cleanedplink'):     # todo check for a large amount of one ID appearing in pairs 
-def main(steps,startfile,outdir): 
+def main(steps,startfile,outdir,chrange): 
     out = startfile
-    chrange = input("""Would you like to only include some chromosomes? If you would, enter the desired chromosomes in a plink-acceptable format eg. 1-4,22,xy or something similar. If you want to keep all chromosomes, just press enter!""")
     if chrange != "":
         out = chrom(out,chrange)
     steps = steps.split(" ")
@@ -130,6 +129,10 @@ def main(steps,startfile,outdir):
         elif steps[pos] == "maf":
             out = maf(out,x)
         pos += 2 if flag else 1
+        try:
+            steps[pos]
+        except:
+            break
     return out
 def menu():
     cls()
@@ -152,6 +155,16 @@ def menu():
     |_________________________________________________________________________________________________|
     """)
     cls()
+    chrange = input("""
+___________________________________________________________________________________________________
+|                                  Welcome to this QC Script!                                     |
+|                       Would you like to only include some chromosomes?                          |
+|          If you would, enter the desired chromosomes in a plink-acceptable format               |
+|                                   For example: 1-4,22,xy                                        |
+|                    If you want to keep all chromosomes, just press enter!                       |
+|_________________________________________________________________________________________________|
+    """)
+    cls()
     steps = input ("""
     ___________________________________________________________________________________________________
     |                                  Welcome to this QC Script!                                     |
@@ -165,10 +178,10 @@ def menu():
     |_________________________________________________________________________________________________|
  
     """)
-    return steps, inputfile, outputdir
+    return steps, inputfile, outputdir, chrange
 if __name__ == "__main__":
-    steps, inputfile, outputdir = menu()
+    steps, inputfile, outputdir, chrange = menu()
     if steps == "":
         steps = "geno 0.05 mind 0.05"
-    final = main(steps,inputfile,outputdir)
+    final = main(steps,inputfile,outputdir,chrange)
     print("your qced files have the filename: " +final + " (plus their associated file extension)")
